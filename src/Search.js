@@ -1,31 +1,39 @@
 import React, {Component} from 'react';
 import { Link } from 'react-router-dom'
 import * as BooksApi from './BooksAPI';
+ import * as _ from 'lodash';
+import Book from './book'
 
 class Search extends Component{
+  
+    state = {
+        books: [],
+        query: ''
+    }
 
-  state = {
-    books: [],
-    query: ''
-  }
 
     componentDidUpdate(prevProps,prevState){
       if(prevState.query !== this.state.query){
-        BooksApi.search(this.state.query).then((data) => {
+        (this.state.query && BooksApi.search(this.state.query).then((data) => {
           const booksData = data.error ? [] : data;
           this.setState({
             books: booksData
           })
       })
-      }
+        )}
     }
 
-    handelchange = e =>{
-      e.preventDefault()
-      const query = e.target.value
-      this.setState({
-        query: query
-      })
+    handlechange = e =>{
+      e.persist();
+      if (!this.debouncedFn) {
+        this.debouncedFn =  _.debounce(() => {
+          let searchString = e.target.value;
+          this.setState({
+            query: searchString
+          });
+        }, 300);
+      }
+        this.debouncedFn();
     }
 
     handleShelfChange = (event,book) => {
@@ -72,12 +80,13 @@ class Search extends Component{
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-                <input
-                  type="text"
-                  placeholder="Search by title or author"
-                  value={this.state.query}
-                  onChange={this.handelchange}
-                />
+                  <input
+                    type="text"
+                    placeholder="Search by title or author"
+                    onChange={this.handlechange}
+                  />
+                  
+
               </div>
             </div>
             <div className="search-books-results">
@@ -85,7 +94,8 @@ class Search extends Component{
                 {this.state.books &&
                   this.state.books.map((book, index) => (
                     <li key={index}>
-                      <div className="book">
+                      <Book book = {book} onHandleShelfChange = {this.handleShelfChange} onDefaultValue = {this.defaultValue}/>
+                      {/* <div className="book">
                         <div className="book-top">
                           <div
                             className="book-cover"
@@ -122,7 +132,7 @@ class Search extends Component{
                               <p key={index}>{author}</p>
                             ))}
                         </div>
-                      </div>
+                      </div> */}
                     </li>
                   ))}
               </ol>
