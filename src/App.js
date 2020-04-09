@@ -32,7 +32,6 @@ class BooksApp extends React.Component {
 
   componentDidMount = () => {
     BooksAPI.getAll().then((data) => {
-      console.log(data)
       this.setState({
         books: [...data]
       })
@@ -55,18 +54,12 @@ class BooksApp extends React.Component {
           </div>
           )}
         />
-        <Route path = '/search' component = {Search} />
-        {/* {this.state.showSearchPage ? (
-          <Search />
-        ) : (
-          
-              {this.state.comp.map((c,index) => (
-                <div key = {index}>
-                  <BookShelf onShelfChange = {this.shelfChange} books = {this.state.books} comp = {c}/>
-                </div>
-              ))}
-            
-        )} */}
+        <Route path = '/search' render ={({history}) => (
+          <Search books = {this.state.books} onShelfChange = {(books) => {
+            this.shelfChange(books)
+            history.push('/search')
+          }} />
+        )} />
       </div>
     )
   }

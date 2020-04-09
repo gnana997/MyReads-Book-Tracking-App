@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
 import { Link } from "react-router-dom";
+import * as BooksAPI from './BooksAPI'
 
 class BookShelf extends Component {
     handleShelfChange = (event,book) => {
-        console.log(event.target.value,book, "trigger")
+        const shelf = event.target.value
+        BooksAPI.update(book,shelf).then()
         const index = this.props.books.findIndex((b) => {
-            return (b.title === book.title)
+            return (b.id === book.id)
         })
         this.props.books[index].shelf = event.target.value
         this.props.onShelfChange(this.props.books)
