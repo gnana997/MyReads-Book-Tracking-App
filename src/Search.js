@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Link } from 'react-router-dom'
 import * as BooksApi from './BooksAPI';
- import * as _ from 'lodash';
+import * as _ from 'lodash';
 import Book from './book'
 
 class Search extends Component{
@@ -14,13 +14,20 @@ class Search extends Component{
 
     componentDidUpdate(prevProps,prevState){
       if(prevState.query !== this.state.query){
-        (this.state.query && BooksApi.search(this.state.query).then((data) => {
-          const booksData = data.error ? [] : data;
+        if(this.state.query === ''){
           this.setState({
-            books: booksData
+            books: []
           })
-      })
-        )}
+        }else{
+          BooksApi.search(this.state.query).then((data) => {
+            const booksData = (data && data.error) ? [] : data;
+              this.setState({
+                books: booksData
+              })
+            })
+          }
+        }
+        
     }
 
     handlechange = e =>{
@@ -91,50 +98,12 @@ class Search extends Component{
             </div>
             <div className="search-books-results">
               <ol className="books-grid">
-                {this.state.books &&
+                {(this.state.books &&
                   this.state.books.map((book, index) => (
                     <li key={index}>
                       <Book book = {book} onHandleShelfChange = {this.handleShelfChange} onDefaultValue = {this.defaultValue}/>
-                      {/* <div className="book">
-                        <div className="book-top">
-                          <div
-                            className="book-cover"
-                            style={{
-                              width: 128,
-                              height: 193,
-                              backgroundImage: `url(${book.imageLinks &&
-                                book.imageLinks.thumbnail})`,
-                            }}
-                          ></div>
-                          <div className="book-shelf-changer">
-                            <select
-                              defaultValue={this.defaultValue(book)}
-                              onChange={(event) =>
-                                this.handleShelfChange(event, book)
-                              }
-                            >
-                              <option disabled value="move">
-                                Move to...
-                              </option>
-                              <option value="currentlyReading">
-                                Currently Reading
-                              </option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option value="none">None</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="book-title">{book.title}</div>
-                        <div className="book-authors">
-                          {book.authors &&
-                            book.authors.map((author, index) => (
-                              <p key={index}>{author}</p>
-                            ))}
-                        </div>
-                      </div> */}
                     </li>
-                  ))}
+                  )))}
               </ol>
             </div>
           </div>
